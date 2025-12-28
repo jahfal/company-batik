@@ -1,18 +1,16 @@
 services:
   backend:
-    volumes:
-      - uploaded_files:/app/uploads
     build:
       context: ./cms-catalog-backend
       dockerfile: Dockerfile
     container_name: cms_backend
+    # Semua konfigurasi DB_HOST, DB_USER, dll diambil dari sini
+    env_file:
+      - ./cms-catalog-backend/.env.production
     ports:
       - "3000:3000"
-    environment:
-      - PORT=3000
-      - DB_HOST=database
-      - DB_USER=root
-      - DB_PASSWORD=test
+    volumes:
+      - uploaded_files:/app/uploads
     depends_on:
       database:
         condition: service_healthy
@@ -22,11 +20,10 @@ services:
       context: ./company-profile-batik
       dockerfile: Dockerfile
     container_name: company-profile-frontend
+    env_file:
+      - ./company-profile-batik/.env.production
     ports:
       - "3001:3001"
-    environment:
-      - PORT=3001
-      - BACKEND_API_URL=192.168.1.53:3000/api
     depends_on:
       - backend
 
@@ -35,17 +32,17 @@ services:
       context: ./dashboard-cms
       dockerfile: Dockerfile
     container_name: cms_app
+    env_file:
+      - ./dashboard-cms/.env.production
     ports:
       - "3002:3002"
-    environment:
-      - PORT=3002
-      - BACKEND_API_URL=192.168.1.53:3000/api
     depends_on:
       - backend
 
   database:
     image: mysql:8.0
     container_name: mysql_db
+    # Port 3306 dibuka agar bisa diakses dari aplikasi luar/DB tool seperti TablePlus
     ports:
       - "3306:3306"
     environment:
@@ -54,7 +51,7 @@ services:
     volumes:
       - mysql_data:/var/lib/mysql
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p", "test"]
       interval: 10s
       timeout: 5s
       retries: 5
