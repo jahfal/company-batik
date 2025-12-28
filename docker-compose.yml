@@ -3,7 +3,7 @@ services:
     volumes:
       - uploaded_files:/app/uploads
     build:
-      context: ./cms_catalog_backend
+      context: ./cms-catalog-backend
       dockerfile: Dockerfile
     container_name: cms_backend
     ports:
