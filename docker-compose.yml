@@ -6,7 +6,7 @@ services:
     container_name: cms_backend
     # Semua konfigurasi DB_HOST, DB_USER, dll diambil dari sini
     env_file:
-      - ./cms-catalog-backend/.env.production
+      - ./cms-catalog-backend/.env.prod
     ports:
       - "3000:3000"
     volumes:
@@ -21,7 +21,7 @@ services:
       dockerfile: Dockerfile
     container_name: company-profile-frontend
     env_file:
-      - ./company-profile-batik/.env.production
+      - ./company-profile-batik/.env.prod
     ports:
       - "3001:3001"
     depends_on:
@@ -33,7 +33,7 @@ services:
       dockerfile: Dockerfile
     container_name: cms_app
     env_file:
-      - ./dashboard-cms/.env.production
+      - ./dashboard-cms/.env.prod
     ports:
       - "3002:3002"
     depends_on:
