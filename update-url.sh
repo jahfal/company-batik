@@ -14,18 +14,27 @@ sed -i "s|$TEMPLATE_URL|$NEW_URL/api|g" company-profile-batik/Dockerfile
 sed -i "s|$TEMPLATE_URL|$NEW_URL/api|g" dashboard-cms/Dockerfile
 
 echo "🏗️  2. Membangun Service (Build Ulang)..."
-# Menggunakan nama service: frontend & cms
+# Menggunakan docker-compose sesuai sistem kamu
 docker-compose build --no-cache frontend cms
 docker-compose up -d frontend cms
 
 echo "🧹 3. Membersihkan Dockerfile (Git Reset)..."
-git checkout company-profile-batik/Dockerfile
-git checkout dashboard-cms/Dockerfile
+# Penting: Menggunakan -C karena ini folder submodule
+git -C company-profile-batik checkout Dockerfile
+git -C dashboard-cms checkout Dockerfile
 
-echo "⚡ 4. Menjalankan Hotfix ke File JS (Penting!)..."
-# Menggunakan nama container: company-profile-frontend & cms_app
-# Kita paksa ganti semua teks localhost di dalam file .js yang sudah terlanjur jadi
-docker exec -it company-profile-frontend sh -c "find .next -type f -name '*.js' | xargs sed -i 's|http://localhost:3000/api|$NEW_URL/api|g'"
-docker exec -it cms_app sh -c "find build -type f -name '*.js' | xargs sed -i 's|http://localhost:3000/api|$NEW_URL/api|g'"
+echo "⚡ 4. Menjalankan Hotfix ke File JS di dalam Container..."
+echo "🧹 Menghapus Cache Next.js..."
+docker exec -it company-profile-frontend rm -rf .next/cache
+
+echo "📂 Patching Frontend Container..."
+docker exec -it company-profile-frontend sh -c "find .next -type f -exec sed -i \"s|http://localhost:3000/api|$NEW_URL/api|g\" {} +"
+
+echo "📂 Patching CMS Container..."
+docker exec -it cms_app sh -c "find build -type f -name '*.js' | xargs sed -i \"s|http://localhost:3000/api|$NEW_URL/api|g\""
+
+# Restart agar perubahan terbaca sempurna
+echo "🔄 Me-restart container..."
+docker-compose restart frontend cms
 
 echo "✅ Selesai! Silakan buka browser (Mode Incognito)."
