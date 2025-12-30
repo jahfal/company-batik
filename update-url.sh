@@ -7,25 +7,33 @@ if [ -z "$1" ]; then
     exit 1
 fi
 
-NEW_URL=$1
-# IP ini adalah 'placeholder' yang ada di Dockerfile asli kamu di GitHub
-TEMPLATE_URL="http://192.168.1.53:3000"
+# Hilangkan slash (/) di akhir URL jika user memasukkannya agar tidak dobel
+NEW_URL=$(echo $1 | sed 's|/$||')
+TEMPLATE_URL="http://localhost:3000/api"
 
-echo "🔄 Memproses Patch URL ke: $NEW_URL"
+echo "🔄 Memproses Patch URL ke: $NEW_URL/api"
 
-# Patch Frontend (Next.js menggunakan folder .next)
-sed -i "s|$TEMPLATE_URL|$NEW_URL|g" company-profile-batik/Dockerfile
+# Patch Frontend
+# Kita gunakan pemisah '#' agar tidak bentrok dengan '/' milik https://
+if [ -f "company-profile-batik/Dockerfile" ]; then
+    echo "📂 Patching Frontend..."
+    sed -i "s|$TEMPLATE_URL|$NEW_URL/api|g" company-profile-batik/Dockerfile
+fi
 
-# Patch CMS (React/Vite menggunakan folder build)
-sed -i "s|$TEMPLATE_URL|$NEW_URL|g" dashboard-cms/Dockerfile
+# Patch CMS
+if [ -f "dashboard-cms/Dockerfile" ]; then
+    echo "📂 Patching CMS..."
+    sed -i "s|$TEMPLATE_URL|$NEW_URL/api|g" dashboard-cms/Dockerfile
+fi
 
 echo "🏗️  Membangun ulang container..."
+# Gunakan 'docker compose' (tanpa tanda hubung) untuk versi terbaru
 docker-compose build --no-cache frontend cms
 docker-compose up -d frontend cms
 
 # KEMBALIKAN KE TEMPLATE (PENTING!)
-# Agar saat nanti kamu git pull lagi, tidak ada konflik
+echo "🧹 Membersihkan Dockerfile agar tidak bentrok dengan Git..."
 git checkout company-profile-batik/Dockerfile
 git checkout dashboard-cms/Dockerfile
 
-echo "✅ Selesai! Container sudah pakai URL baru, dan Dockerfile dikembalikan ke template agar tidak bentrok dengan Git."
+echo "✅ Selesai! Container sudah pakai URL baru: $NEW_URL/api"
