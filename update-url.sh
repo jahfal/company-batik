@@ -20,8 +20,8 @@ sed -i "s|$TEMPLATE_URL|$NEW_URL|g" company-profile-batik/Dockerfile
 sed -i "s|$TEMPLATE_URL|$NEW_URL|g" dashboard-cms/Dockerfile
 
 echo "🏗️  Membangun ulang container..."
-docker-compose build --no-cache frontend cms_app
-docker-compose up -d frontend cms_app
+docker-compose build --no-cache frontend cms
+docker-compose up -d frontend cms
 
 # KEMBALIKAN KE TEMPLATE (PENTING!)
 # Agar saat nanti kamu git pull lagi, tidak ada konflik
