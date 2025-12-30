@@ -25,6 +25,6 @@ docker compose up -d --build frontend cms_app
 # KEMBALIKAN KE TEMPLATE (PENTING!)
 # Agar saat nanti kamu git pull lagi, tidak ada konflik
 git checkout company-profile-batik/Dockerfile
-git checkout dashboard-batik/Dockerfile
+git checkout dashboard-cms/Dockerfile
 
 echo "✅ Selesai! Container sudah pakai URL baru, dan Dockerfile dikembalikan ke template agar tidak bentrok dengan Git."
