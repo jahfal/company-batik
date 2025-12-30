@@ -17,7 +17,7 @@ echo "🔄 Memproses Patch URL ke: $NEW_URL"
 sed -i "s|$TEMPLATE_URL|$NEW_URL|g" company-profile-batik/Dockerfile
 
 # Patch CMS (React/Vite menggunakan folder build)
-sed -i "s|$TEMPLATE_URL|$NEW_URL|g" cms-batik/Dockerfile
+sed -i "s|$TEMPLATE_URL|$NEW_URL|g" dashboard-cms/Dockerfile
 
 echo "🏗️  Membangun ulang container..."
 docker compose up -d --build frontend cms_app
@@ -25,6 +25,6 @@ docker compose up -d --build frontend cms_app
 # KEMBALIKAN KE TEMPLATE (PENTING!)
 # Agar saat nanti kamu git pull lagi, tidak ada konflik
 git checkout company-profile-batik/Dockerfile
-git checkout cms_app/Dockerfile
+git checkout dashboard-batik/Dockerfile
 
 echo "✅ Selesai! Container sudah pakai URL baru, dan Dockerfile dikembalikan ke template agar tidak bentrok dengan Git."
