@@ -10,7 +10,7 @@ pipeline {
         SERVER_IP = '192.168.1.53' 
 
         // Password Database (Sementara hardcode, nanti bisa pakai Credentials)
-        DB_ROOT_PASSWORD = 'root'
+        DB_ROOT_PASSWORD = 'test'
     }
 
     stages {
@@ -73,11 +73,14 @@ pipeline {
         stage('Build & Deploy') {
             steps {
                 echo "--- Membangun & Menjalankan Container ---"
+
+                // 1. Tambahan: Hapus paksa container mysql_db jika ada (biar gak conflict)
+                sh 'docker rm -f mysql_db || true'
                 
-                // 1. Matikan container lama & hapus network yatim piatu
+                // 2. Matikan container lama & hapus network yatim piatu
                 sh 'docker-compose down --remove-orphans || true'
                 
-                // 2. Build ulang (-d --build)
+                // 3. Build ulang (-d --build)
                 // Flag --build PENTING agar environment variable IP baru "dibakar" masuk ke image Frontend/CMS
                 sh 'docker-compose up -d --build'
             }
