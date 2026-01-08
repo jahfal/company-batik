@@ -37,6 +37,9 @@ pipeline {
                     sh "echo 'DB_USER=root' >> ${backendEnv}"
                     sh "echo 'DB_PASSWORD=${DB_ROOT_PASSWORD}' >> ${backendEnv}"
                     sh "echo 'DB_NAME=cms_catalog_db' >> ${backendEnv}"
+
+                    // Kunci rahasia
+                    sh "echo 'JWT_SECRET=test' >> ${backendEnv}"
                     
                     // ============================================================
                     // 2. FRONTEND (Next.js) - Port 3001
