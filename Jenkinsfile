@@ -34,9 +34,9 @@ pipeline {
                     // PORT=3000 sesuai mapping "3000:3000" di docker-compose
                     sh "echo 'PORT=3000' > ${backendEnv}"
                     sh "echo 'DB_HOST=mysql_db' >> ${backendEnv}"
-                    sh "echo 'DB_USERNAME=root' >> ${backendEnv}"
+                    sh "echo 'DB_USER=root' >> ${backendEnv}"
                     sh "echo 'DB_PASSWORD=${DB_ROOT_PASSWORD}' >> ${backendEnv}"
-                    sh "echo 'DB_DATABASE=cms_catalog_db' >> ${backendEnv}"
+                    sh "echo 'DB_NAME=cms_catalog_db' >> ${backendEnv}"
                     
                     // ============================================================
                     // 2. FRONTEND (Next.js) - Port 3001
