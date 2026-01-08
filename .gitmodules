@@ -1,9 +1,9 @@
 [submodule "dashboard-cms"]
 	path = dashboard-cms
-	url = git@github.com:jahfal/dashboard-cms.git
+	url = https://github.com/jahfal/dashboard-cms.git
 [submodule "company-profile-batik"]
 	path = company-profile-batik
-	url = git@github.com:jahfal/company-profile-batik.git
+	url = https://github.com/jahfal/company-profile-batik.git
 [submodule "cms-catalog-backend"]
 	path = cms-catalog-backend
-	url = git@github.com:jahfal/cms-catalog-backend.git
+	url = https://github.com/jahfal/cms-catalog-backend.git
