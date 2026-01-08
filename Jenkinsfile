@@ -74,8 +74,8 @@ pipeline {
             steps {
                 echo "--- Membangun & Menjalankan Container ---"
 
-                // 1. Tambahan: Hapus paksa container mysql_db jika ada (biar gak conflict)
-                sh 'docker rm -f mysql_db || true'
+                // Hapus paksa SEMUA container lama yang mungkin nyangkut
+                sh 'docker rm -f mysql_db cms_backend company-profile-frontend cms_app || true'
                 
                 // 2. Matikan container lama & hapus network yatim piatu
                 sh 'docker-compose down --remove-orphans || true'
