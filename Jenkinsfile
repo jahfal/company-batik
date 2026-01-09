@@ -11,7 +11,15 @@ pipeline {
         DB_ROOT_PASSWORD = 'test'
     }
 
+    
+
     stages {
+        stage('Cleanup') {
+        steps {
+            deleteDir() // This wipes the workspace to ensure a fresh start
+        }
+    }
+    
         stage('Checkout Code') {
             steps {
                 echo "--- Menarik Kode dari GitHub ---"
