@@ -16,14 +16,14 @@ services:
         condition: service_healthy
 
   frontend:
-    build:
-      context: ./company-profile-batik
-      dockerfile: Dockerfile
+    image: userbatik/company-profile-batik:latest
+    restart: always
     container_name: company-profile-frontend
     env_file:
       - ./company-profile-batik/.env
     ports:
       - "3001:3001"
+    pull_policy: always
     depends_on:
       - backend
 
