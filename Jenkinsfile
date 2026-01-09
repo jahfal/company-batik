@@ -14,13 +14,13 @@ pipeline {
                     deleteDir()
                     
                     withCredentials([usernamePassword(credentialsId: 'github-jenkins-login', passwordVariable: 'GIT_PASS', usernameVariable: 'GIT_USER')]) {
-                        // Clone repo utama
+                        // 1. Clone repo utama
                         sh "git clone https://${GIT_USER}:${GIT_PASS}@github.com/jahfal/company-batik.git ."
                         
-                        echo "--- Mengatur & Update Submodule ---"
-                        // Memaksa submodule menggunakan kredensial yang sama agar tidak nyangkut (ASKPASS)
+                        echo "--- Mengatur & Update Submodule (Anti-Nyangkut) ---"
+                        // 2. Trik Utama: Memaksa Git menyisipkan username:password ke setiap URL github.com
                         sh """
-                            git config submodule.recurse true
+                            git config url."https://${GIT_USER}:${GIT_PASS}@github.com/".insteadOf "https://github.com/"
                             git submodule init
                             git submodule update --init --recursive
                         """
@@ -47,7 +47,7 @@ pipeline {
         stage('Build & Deploy') {
             steps {
                 echo "--- Membangun & Menjalankan Container ---"
-                // Down dulu agar bersih, pakai || true agar tidak stop jika belum ada container
+                // || true penting agar pipeline tidak stop jika container belum ada
                 sh 'docker-compose down --remove-orphans || true'
                 sh 'docker-compose pull'
                 sh 'docker-compose up -d --build'
@@ -60,7 +60,7 @@ pipeline {
                     echo "--- Menunggu Database Siap (20 detik) ---"
                     sleep 20 
                     echo "--- Menjalankan Migrasi Database ---"
-                    // Gunakan || echo untuk jaga-jaga jika container belum siap
+                    // Pastikan nama container 'cms_backend' sesuai dengan yang ada di docker-compose.yml
                     sh 'docker exec cms_backend npx sequelize-cli db:migrate || echo "Migrasi gagal, cek log container!"'
                 }
             }
