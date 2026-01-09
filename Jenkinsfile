@@ -2,7 +2,6 @@ pipeline {
     agent any
 
     options {
-        // Mematikan checkout otomatis agar kita bisa kontrol manual
         skipDefaultCheckout()
         timeout(time: 30, unit: 'MINUTES')
     }
@@ -23,13 +22,12 @@ pipeline {
                     withCredentials([usernamePassword(credentialsId: "${env.CREDENTIAL_ID}", passwordVariable: 'GIT_PASS', usernameVariable: 'GIT_USER')]) {
                         
                         echo "--- 2. Clone Repo Utama ---"
-                        // Gunakan --depth 1 agar tarikan data ringan
                         sh "git clone --depth 1 https://${GIT_USER}:${GIT_PASS}@github.com/jahfal/company-batik.git ."
                         
                         echo "--- 3. Clone Sub-Projects Manual ---"
+                        // Hapus folder bawaan hasil git clone utama agar bersih sebelum di-clone mandiri
                         sh "rm -rf cms-catalog-backend company-profile-batik dashboard-cms"
                         
-                        // Menambahkan --quiet agar proses clone lebih stabil di background Jenkins
                         sh "git clone --quiet --depth 1 https://${GIT_USER}:${GIT_PASS}@github.com/jahfal/cms-catalog-backend.git cms-catalog-backend"
                         sh "git clone --quiet --depth 1 https://${GIT_USER}:${GIT_PASS}@github.com/jahfal/company-profile-batik.git company-profile-batik"
                         sh "git clone --quiet --depth 1 https://${GIT_USER}:${GIT_PASS}@github.com/jahfal/dashboard-cms.git dashboard-cms"
@@ -38,10 +36,37 @@ pipeline {
             }
         }
         
-        stage('Setup Environment (.env)') {
+        stage('Setup Environment') {
             steps {
                 script {
-                    echo "--- 4. Pembuatan File .env ---"
+                    echo "--- 4. Menyiapkan Konfigurasi (.env & Nginx) ---"
+                    
+                    // Pastikan tidak ada folder bernama default.conf (sisa error sebelumnya)
+                    sh "rm -rf default.conf || true"
+
+                    // Menulis ulang default.conf (agar selalu update jika ada perubahan di Jenkinsfile)
+                    sh """
+                        echo 'server {
+                            listen 80;
+                            server_name localhost;
+
+                            location / {
+                                proxy_pass http://company-profile-frontend:3001;
+                            }
+
+                            location /api/ {
+                                proxy_pass http://cms_backend:3000/;
+                                proxy_set_header Host \$host;
+                                proxy_set_header X-Real-IP \$remote_addr;
+                            }
+
+                            location /cms {
+                                proxy_pass http://cms_app:3002;
+                            }
+                        }' > default.conf
+                    """
+
+                    // Setup .env untuk setiap service
                     sh """
                         echo 'PORT=3000\nDB_HOST=mysql_db\nDB_USER=root\nDB_PASSWORD=${DB_ROOT_PASSWORD}\nDB_NAME=cms_catalog_db\nJWT_SECRET=test' > cms-catalog-backend/.env
                         echo 'PORT=3001' > company-profile-batik/.env
@@ -54,14 +79,14 @@ pipeline {
         stage('Build & Deploy Hybrid') {
             steps {
                 script {
-                    echo "--- 5. Menjalankan Docker Compose ---"
-                    // Mematikan container lama jika ada
+                    echo "--- 5. Docker Compose Deploy ---"
+                    // Membersihkan kontainer lama
                     sh 'docker-compose down --remove-orphans || true'
                     
-                    // Menarik image yang sudah jadi (Frontend/Next.js dari GHCR/DockerHub)
+                    // Pull image frontend (Hybrid)
                     sh 'docker-compose pull'
                     
-                    // Build service lokal (Backend & CMS) dan jalankan semuanya
+                    // Build & Run
                     sh 'docker-compose up -d --build'
                 }
             }
@@ -70,22 +95,16 @@ pipeline {
         stage('Database Migration') {
             steps {
                 script {
-                    echo "--- 6. Menunggu Database (20 detik) ---"
+                    echo "--- 6. Migrasi Database ---"
                     sleep 20 
-                    echo "--- Menjalankan Migrasi ---"
-                    // Pastikan nama container 'cms_backend' sesuai dengan docker-compose.yml
-                    sh 'docker exec cms_backend npx sequelize-cli db:migrate || echo "Migrasi gagal, silakan cek log container."'
+                    sh 'docker exec cms_backend npx sequelize-cli db:migrate || echo "Migrasi gagal/sudah up-to-date."'
                 }
             }
         }
     }
 
     post {
-        success {
-            echo "✅ SELESAI: Aplikasi berhasil dideploy ulang dalam kondisi bersih!"
-        }
-        failure {
-            echo "❌ GAGAL: Silakan cek tahapan mana yang merah."
-        }
+        success { echo "✅ DEPLOYMENT SUKSES!" }
+        failure { echo "❌ DEPLOYMENT GAGAL!" }
     }
 }

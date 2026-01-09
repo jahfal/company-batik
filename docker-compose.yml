@@ -66,7 +66,7 @@ services:
     ports:
       - "80:80"    # Membuka Port 80 (HTTP Standar) ke Publik
     volumes:
-      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf # Load config kamu tadi
+      - ./default.conf:/etc/nginx/conf.d/default.conf # Load config kamu tadi
     depends_on:
       - backend
       - frontend
