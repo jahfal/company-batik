@@ -52,7 +52,7 @@ pipeline {
                     sh "echo 'PORT=3001' > ${frontendEnv}"
                     
                     // URL API menembak ke Port Backend (3000) + Prefix /api
-                    sh "echo 'NEXT_PUBLIC_API_URL=http://${SERVER_IP}:3000/api' >> ${frontendEnv}"
+                    sh "echo 'NEXT_PUBLIC_API_URL=http://${SERVER_IP}/api' >> ${frontendEnv}"
 
                     // ============================================================
                     // 3. CMS (React) - Port 3002

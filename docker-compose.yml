@@ -59,6 +59,20 @@ services:
       timeout: 5s
       retries: 5
 
+  nginx:
+    image: nginx:alpine
+    container_name: nginx_gateway
+    restart: always
+    ports:
+      - "80:80"    # Membuka Port 80 (HTTP Standar) ke Publik
+    volumes:
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf # Load config kamu tadi
+    depends_on:
+      - cms_backend
+      - company-profile-frontend
+    networks:
+      - default
+
 volumes:
   mysql_data:
   uploaded_files:
