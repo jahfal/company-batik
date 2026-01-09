@@ -29,10 +29,10 @@ pipeline {
             steps {
                 script {
                     echo "--- 2. Menyiapkan Konfigurasi ---"
-                    // Memastikan folder 'default.conf' sisa error dihapus
+                    // Memastikan folder palsu 'default.conf' sisa error dihapus
                     sh "rm -rf default.conf" 
                     
-                    // Menulis konfigurasi ke FILE (menggunakan tanda >)
+                    // MENULIS KONFIGURASI KE FILE (PENTING: Gunakan tanda > )
                     sh """
                         echo 'server {
     listen 80;
