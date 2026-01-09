@@ -3,13 +3,11 @@ pipeline {
 
     environment {
         // ============================================================
-        // ⚠️ KONFIGURASI WAJIB DIUBAH ⚠️
-        // Masukkan IP Address LAN Laptop Acer (Cek pakai perintah 'ip a')
-        // Contoh: '192.168.1.15'
+        // IP Address Server (Tetap sama)
         // ============================================================
         SERVER_IP = '192.168.1.53' 
 
-        // Password Database (Sementara hardcode, nanti bisa pakai Credentials)
+        // Password Database
         DB_ROOT_PASSWORD = 'test'
     }
 
@@ -17,8 +15,10 @@ pipeline {
         stage('Checkout Code') {
             steps {
                 echo "--- Menarik Kode dari GitHub ---"
-                // Mengambil repo utama & submodules secara otomatis
+                // PENTING: Update submodule agar kodingan Backend & CMS terbaru ikut tertarik
+                // Karena Backend & CMS akan di-build di server ini.
                 checkout scm
+                sh 'git submodule update --init --recursive'
             }
         }
         
@@ -31,14 +31,11 @@ pipeline {
                     echo "--- Generate Env: BACKEND ---"
                     def backendEnv = "cms-catalog-backend/.env"
                     
-                    // PORT=3000 sesuai mapping "3000:3000" di docker-compose
                     sh "echo 'PORT=3000' > ${backendEnv}"
                     sh "echo 'DB_HOST=mysql_db' >> ${backendEnv}"
                     sh "echo 'DB_USER=root' >> ${backendEnv}"
                     sh "echo 'DB_PASSWORD=${DB_ROOT_PASSWORD}' >> ${backendEnv}"
                     sh "echo 'DB_NAME=cms_catalog_db' >> ${backendEnv}"
-
-                    // Kunci rahasia
                     sh "echo 'JWT_SECRET=test' >> ${backendEnv}"
                     
                     // ============================================================
@@ -47,12 +44,11 @@ pipeline {
                     echo "--- Generate Env: FRONTEND ---"
                     def frontendEnv = "company-profile-batik/.env"
                     
-                    // PORT=3001 WAJIB ADA karena mapping docker-compose kamu "3001:3001"
-                    // Kalau tidak ada ini, Next.js jalan di 3000, docker bingung nyari di 3001.
+                    // Kita cukup buat file ini agar docker-compose tidak error saat mencarinya.
+                    // Variable NEXT_PUBLIC_... sudah tidak ngefek di sini karena sudah 
+                    // dibuild (baked) di GitHub Actions.
                     sh "echo 'PORT=3001' > ${frontendEnv}"
-                    
-                    // URL API menembak ke Port Backend (3000) + Prefix /api
-                    sh "echo 'NEXT_PUBLIC_API_URL=http://${SERVER_IP}/api' >> ${frontendEnv}"
+                    sh "echo '# NEXT_PUBLIC Variables sudah di-set di GitHub Actions' >> ${frontendEnv}"
 
                     // ============================================================
                     // 3. CMS (React) - Port 3002
@@ -60,32 +56,31 @@ pipeline {
                     echo "--- Generate Env: CMS ---"
                     def cmsEnv = "dashboard-cms/.env"
                     
-                    // PORT=3002 WAJIB ADA karena mapping docker-compose kamu "3002:3002"
+                    // PORT=3002 (Akses lewat http://192.168.1.53:3002)
                     sh "echo 'PORT=3002' > ${cmsEnv}"
                     
-                    // URL API menembak ke Port Backend (3000) + Prefix /api
-                    sh "echo 'REACT_APP_API_URL=http://${SERVER_IP}:3000/api' >> ${cmsEnv}"
+                    // API URL: Tembak ke Nginx (Port 80) biar konsisten & hindari CORS
+                    // Hapus ':3000' agar lewat pintu utama
+                    sh "echo 'REACT_APP_API_URL=http://${SERVER_IP}/api' >> ${cmsEnv}"
                     
-                    // Tambahan config agar build tidak gagal karena warning linter
+                    // Config tambahan biar build React aman
                     sh "echo 'ESLINT_NO_DEV_ERRORS=true' >> ${cmsEnv}"
                     sh "echo 'DISABLE_ESLINT_PLUGIN=true' >> ${cmsEnv}"
                 }
             }
         }
 
-        stage('Build & Deploy') {
+        stage('Build & Deploy Hybrid') {
             steps {
                 echo "--- Membangun & Menjalankan Container ---"
 
-                // Hapus paksa SEMUA container lama yang mungkin nyangkut
-                sh 'docker rm -f nginx_gateway mysql_db cms_backend company-profile-frontend cms_app || true'
-                
-                // 2. Matikan container lama & hapus network yatim piatu
+                // 1. Bersihkan container lama yang mungkin nyangkut
                 sh 'docker-compose down --remove-orphans || true'
                 
-                // 3. Build ulang (-d --build)
-                // Flag --build PENTING agar environment variable IP baru "dibakar" masuk ke image Frontend/CMS
-                sh 'docker-compose up -d --build'
+                // 2. JURUS HYBRID (Build + Pull):
+                // --build : Paksa build ulang service yang pakai "build:" (Backend & CMS)
+                // --pull  : Paksa download image terbaru service yang pakai "image:" (Frontend)
+                sh 'docker-compose up -d --build --pull'
             }
         }
         
@@ -93,14 +88,12 @@ pipeline {
             steps {
                 script {
                     echo "--- Menunggu Database Siap (20 detik) ---"
-                    // Beri waktu agak lama karena MySQL 8.0 butuh waktu startup
                     sleep 20 
                     
                     echo "--- Menjalankan Migrasi Database ---"
-                    // Masuk ke container 'cms_backend' -> jalankan sequelize migrate
+                    // Pastikan nama container backend sesuai dengan docker-compose.yml
                     sh 'docker exec cms_backend npx sequelize-cli db:migrate'
                 }
             }
         }
     }
-}
