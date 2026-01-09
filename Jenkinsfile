@@ -2,20 +2,14 @@ pipeline {
     agent any
 
     options {
-        // PENTING: Mematikan checkout otomatis bawaan Jenkins agar tidak "nyangkut" di submodule
+        // Mematikan checkout otomatis agar tidak bentrok dengan script manual kita
         skipDefaultCheckout()
-        // Memberikan batas waktu build maksimal 30 menit
         timeout(time: 30, unit: 'MINUTES')
     }
 
     environment {
-        // IP Address Server
         SERVER_IP = '192.168.1.53' 
-
-        // Password Database
         DB_ROOT_PASSWORD = 'test'
-        
-        // ID Kredensial yang ada di Jenkins (Pastikan ID ini benar di Jenkins Anda)
         CREDENTIAL_ID = 'github-jenkins-login'
     }
 
@@ -23,19 +17,27 @@ pipeline {
         stage('Cleanup & Checkout') {
             steps {
                 script {
-                    echo "--- Membersihkan Workspace agar Fresh ---"
-                    deleteDir() // Menghapus folder lama untuk menghindari masalah permission/kotor
+                    echo "--- Membersihkan Workspace ---"
+                    deleteDir() 
                     
-                    echo "--- Menarik Kode Utama & Submodule secara Manual ---"
+                    echo "--- Menarik Kode Utama & Submodule ---"
                     withCredentials([usernamePassword(credentialsId: "${env.CREDENTIAL_ID}", passwordVariable: 'GIT_PASS', usernameVariable: 'GIT_USER')]) {
                         
-                        // 1. Clone repo utama langsung ke folder workspace
+                        // 1. Clone repo utama
                         sh "git clone https://${GIT_USER}:${GIT_PASS}@github.com/jahfal/company-batik.git ."
                         
-                        // 2. Trik Anti-Nyangkut: Memaksa submodule menggunakan token login yang sama
+                        echo "--- Inject Kredensial ke Konfigurasi Submodule ---"
+                        // 2. Inisialisasi dulu agar file config terbentuk
+                        sh "git submodule init"
+                        
+                        // 3. Paksa setiap submodule menggunakan URL yang mengandung USER:PASS
+                        // Cara ini bypass error "could not read Username" secara total
                         sh """
-                            git config url."https://${GIT_USER}:${GIT_PASS}@github.com/".insteadOf "https://github.com/"
-                            git submodule init
+                            git config submodule.cms-catalog-backend.url "https://${GIT_USER}:${GIT_PASS}@github.com/jahfal/cms-catalog-backend.git"
+                            git config submodule.company-profile-batik.url "https://${GIT_USER}:${GIT_PASS}@github.com/jahfal/company-profile-batik.git"
+                            git config submodule.dashboard-cms.url "https://${GIT_USER}:${GIT_PASS}@github.com/jahfal/dashboard-cms.git"
+                            
+                            echo "--- Memulai Proses Update Submodule ---"
                             git submodule update --init --recursive
                         """
                     }
@@ -46,28 +48,12 @@ pipeline {
         stage('Setup Environment (.env)') {
             steps {
                 script {
-                    echo "--- Generate Env: BACKEND ---"
+                    echo "--- Membuat File Environment (.env) ---"
+                    // Menggunakan format yang lebih aman untuk penulisan file
                     sh """
-                        echo 'PORT=3000
-                        DB_HOST=mysql_db
-                        DB_USER=root
-                        DB_PASSWORD=${DB_ROOT_PASSWORD}
-                        DB_NAME=cms_catalog_db
-                        JWT_SECRET=test' > cms-catalog-backend/.env
-                    """
-                    
-                    echo "--- Generate Env: FRONTEND ---"
-                    sh """
-                        echo 'PORT=3001
-                        # NEXT_PUBLIC di-set di GitHub Actions' > company-profile-batik/.env
-                    """
-
-                    echo "--- Generate Env: CMS ---"
-                    sh """
-                        echo 'PORT=3002
-                        REACT_APP_API_URL=http://${SERVER_IP}/api
-                        ESLINT_NO_DEV_ERRORS=true
-                        DISABLE_ESLINT_PLUGIN=true' > dashboard-cms/.env
+                        echo 'PORT=3000\nDB_HOST=mysql_db\nDB_USER=root\nDB_PASSWORD=${DB_ROOT_PASSWORD}\nDB_NAME=cms_catalog_db\nJWT_SECRET=test' > cms-catalog-backend/.env
+                        echo 'PORT=3001\n# NEXT_PUBLIC di-set di GitHub Actions' > company-profile-batik/.env
+                        echo 'PORT=3002\nREACT_APP_API_URL=http://${SERVER_IP}/api\nESLINT_NO_DEV_ERRORS=true\nDISABLE_ESLINT_PLUGIN=true' > dashboard-cms/.env
                     """
                 }
             }
@@ -76,16 +62,10 @@ pipeline {
         stage('Build & Deploy') {
             steps {
                 script {
-                    echo "--- Membangun & Menjalankan Container dengan Docker Compose ---"
-                    
-                    // --remove-orphans menghapus container lama yang tidak terpakai
-                    // || true agar pipeline tidak gagal jika belum ada container yang running
+                    echo "--- Docker Compose: Deploying ---"
+                    // Memastikan kita berada di folder yang benar yang berisi docker-compose.yml
                     sh 'docker-compose down --remove-orphans || true'
-                    
-                    // Menarik image terbaru (untuk Frontend)
                     sh 'docker-compose pull'
-                    
-                    // Build & Jalankan (untuk Backend & CMS)
                     sh 'docker-compose up -d --build'
                 }
             }
@@ -94,12 +74,10 @@ pipeline {
         stage('Database Migration') {
             steps {
                 script {
-                    echo "--- Menunggu Database Siap (20 detik) ---"
+                    echo "--- Menunggu Database (20 detik) ---"
                     sleep 20 
-                    
-                    echo "--- Menjalankan Migrasi Database di dalam Container ---"
-                    // Pastikan nama container 'cms_backend' sesuai dengan yang ada di docker-compose.yml
-                    sh 'docker exec cms_backend npx sequelize-cli db:migrate || echo "Migrasi gagal, cek log container!"'
+                    echo "--- Menjalankan Migrasi ---"
+                    sh 'docker exec cms_backend npx sequelize-cli db:migrate || echo "Migrasi gagal, silakan cek manual."'
                 }
             }
         }
@@ -107,10 +85,10 @@ pipeline {
 
     post {
         success {
-            echo "✅ Deployment Berhasil!"
+            echo "✅ SELESAI: Aplikasi berhasil dideploy!"
         }
         failure {
-            echo "❌ Deployment Gagal, periksa log di atas."
+            echo "❌ GAGAL: Terjadi kesalahan pada proses build/deploy."
         }
     }
 }
