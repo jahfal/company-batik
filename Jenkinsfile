@@ -19,9 +19,10 @@ pipeline {
             deleteDir() // This wipes the workspace to ensure a fresh start
         }
     }
-    
+
         stage('Checkout Code') {
             steps {
+                cleanWs()
                 echo "--- Menarik Kode dari GitHub ---"
                 // PENTING: Update submodule agar kodingan Backend & CMS terbaru ikut tertarik
                 // Karena Backend & CMS akan di-build di server ini.
