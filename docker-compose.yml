@@ -68,8 +68,8 @@ services:
     volumes:
       - ./nginx/default.conf:/etc/nginx/conf.d/default.conf # Load config kamu tadi
     depends_on:
-      - cms_backend
-      - company-profile-frontend
+      - backend
+      - frontend
     networks:
       - default
 
