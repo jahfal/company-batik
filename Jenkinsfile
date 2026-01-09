@@ -80,7 +80,9 @@ pipeline {
                 // 2. JURUS HYBRID (Build + Pull):
                 // --build : Paksa build ulang service yang pakai "build:" (Backend & CMS)
                 // --pull  : Paksa download image terbaru service yang pakai "image:" (Frontend)
-                sh 'docker-compose up -d --build --pull'
+                sh 'docker-compose pull'
+
+                sh 'docker-compose up -d --build'
             }
         }
         
