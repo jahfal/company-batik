@@ -78,7 +78,7 @@ pipeline {
                 echo "--- Membangun & Menjalankan Container ---"
 
                 // Hapus paksa SEMUA container lama yang mungkin nyangkut
-                sh 'docker rm -f mysql_db cms_backend company-profile-frontend cms_app || true'
+                sh 'docker rm -f nginx_gateway mysql_db cms_backend company-profile-frontend cms_app || true'
                 
                 // 2. Matikan container lama & hapus network yatim piatu
                 sh 'docker-compose down --remove-orphans || true'
