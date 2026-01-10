@@ -65,6 +65,7 @@ services:
     restart: always
     ports:
       - "80:80"    # Membuka Port 80 (HTTP Standar) ke Publik
+      - "81:81"
     volumes:
       - ./default.conf:/etc/nginx/conf.d/default.conf # Load config kamu tadi
     depends_on:
