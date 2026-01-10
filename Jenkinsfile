@@ -58,6 +58,11 @@ server {
         proxy_set_header X-Real-IP \\\$remote_addr;
         proxy_set_header X-Forwarded-For \\\$proxy_add_x_forwarded_for;
     }
+
+    location /uploads/ {
+        proxy_pass http://cms_backend:3000/uploads/;
+        proxy_set_header Host \\\$host;
+    }
 }
 
 # Server CMS (Port 81) - Menghindari Page Putih
