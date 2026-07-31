@@ -35,20 +35,17 @@ const upload = multer({
 
 // Rute POST untuk mengunggah satu file gambar
 router.post('/upload', upload.single('productImage'), (req, res) => {
-    // 'productImage' adalah nama field di form-data frontend
-
     if (!req.file) {
-        // Jika tidak ada file yang diunggah atau file ditolak oleh filter
         return res.status(400).json({ message: 'Tidak ada file gambar yang diunggah atau jenis file tidak didukung.' });
     }
 
-    // Dapatkan URL publik dari file yang diunggah
-    // Asumsi server backend berjalan di http://localhost:3000
-    const imageUrl = `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}`;
+    // UBAH BARIS INI: Gunakan BASE_URL dari .env agar otomatis HTTPS di produksi
+    const baseUrl = process.env.BASE_URL || `${req.protocol}://${req.get('host')}`;
+    const imageUrl = `${baseUrl}/uploads/${req.file.filename}`;
 
     res.status(200).json({
         message: 'File berhasil diunggah secara lokal.',
-        filePath: imageUrl, // Ini URL yang akan disimpan ke database
+        filePath: imageUrl, 
     });
 });
 
