@@ -1,0 +1,42 @@
+name: CI Pipeline Batik App
+
+on:
+  push:
+    branches: [ "main" ] # Script akan jalan setiap kali kamu push ke branch main
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      # 1. Build & Push Backend
+      - name: Build and Push Backend
+        uses: docker/build-push-action@v5
+        with:
+          context: ./cms_catalog_backend # Sesuaikan dengan nama folder backend-mu
+          push: true
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/company-batik-backend:latest
+
+      # 2. Build & Push Frontend (Next.js)
+      - name: Build and Push Frontend
+        uses: docker/build-push-action@v5
+        with:
+          context: ./company-profile-batik # Sesuaikan dengan nama folder frontend-mu
+          push: true
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/company-batik-frontend:latest
+
+      # 3. Build & Push CMS Dashboard (React)
+      - name: Build and Push CMS
+        uses: docker/build-push-action@v5
+        with:
+          context: ./company-profile-batik-cms # Sesuaikan dengan nama folder cms-mu
+          push: true
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/company-batik-cms:latest
