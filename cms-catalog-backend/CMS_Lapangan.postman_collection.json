@@ -1,0 +1,253 @@
+{
+	"info": {
+		"_postman_id": "64d6f76f-ec06-4272-82b3-7c1c16540a51",
+		"name": "CMS_Lapangan",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "3583815"
+	},
+	"item": [
+		{
+			"name": "Booking",
+			"item": [
+				{
+					"name": "my booking",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF9wZW5nZ3VuYSI6MSwibmFtYSI6IkFkbWluIiwiZW1haWwiOiJhZG1pbkBleGFtcGxlLmNvbSIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTczNDY2Njg5MCwiZXhwIjoxNzM0NjcwNDkwfQ.Ret_71B5y9IhLepwJtjzBwBZ-ZzoQ4MHzZ7HQ5y_X04"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:3000/api/booking",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"booking"
+							]
+						},
+						"description": "Generated from cURL: curl -X GET http://localhost:3000/api/booking \\\r\n-H \"Authorization: Bearer your_jwt_token_here\"\r\n"
+					},
+					"response": []
+				},
+				{
+					"name": "Create Booking",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF9wZW5nZ3VuYSI6MSwibmFtYSI6IkFkbWluIiwiZW1haWwiOiJhZG1pbkBleGFtcGxlLmNvbSIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTczNDY2Njg5MCwiZXhwIjoxNzM0NjcwNDkwfQ.Ret_71B5y9IhLepwJtjzBwBZ-ZzoQ4MHzZ7HQ5y_X04"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"id_lapangan\": 10,\r\n  \"tanggal\": \"2024-12-25\",\r\n  \"waktu_mulai\": \"10:00\",\r\n  \"waktu_selesai\": \"12:00\",\r\n  \"total_harga\": 100000\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3000/api/booking",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"booking"
+							]
+						},
+						"description": "Generated from cURL: curl -X POST http://localhost:3000/api/booking \\\r\n-H \"Authorization: Bearer your_jwt_token_here\" \\\r\n-H \"Content-Type: application/json\" \\\r\n-d '{\r\n  \"lapangan_id\": 1,\r\n  \"tanggal\": \"2024-12-25\",\r\n  \"waktu_mulai\": \"10:00\",\r\n  \"waktu_selesai\": \"12:00\"\r\n}'\r\n"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Lapangan",
+			"item": [
+				{
+					"name": "Create Lapangan",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer YOUR_ACCESS_TOKEN"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"nama\": \"Lapangan Badminton C\",\r\n    \"jenis_olahraga\": \"badminton\",\r\n    \"lokasi\": \"Jl. Melati No. 5\",\r\n    \"harga_per_jam\": \"45000.00\"\r\n  }",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3000/api/lapangan",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"lapangan"
+							]
+						},
+						"description": "Generated from cURL: curl -X POST http://localhost:3000/api/lapangan \\\r\n  -H \"Authorization: Bearer YOUR_ACCESS_TOKEN\" \\\r\n  -H \"Content-Type: application/json\" \\\r\n  -d '{\r\n    \"nama\": \"Lapangan Badminton C\",\r\n    \"jenis_olahraga\": \"badminton\",\r\n    \"lokasi\": \"Jl. Melati No. 5\",\r\n    \"harga_per_jam\": \"45000.00\"\r\n  }'\r\n"
+					},
+					"response": []
+				},
+				{
+					"name": "List Lapangan",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer YOUR_ACCESS_TOKEN"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:3000/api/lapangan",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"lapangan"
+							]
+						},
+						"description": "Generated from cURL: curl -X GET http://localhost:3000/api/lapangan \\\r\n  -H \"Authorization: Bearer YOUR_ACCESS_TOKEN\" \\\r\n  -H \"Content-Type: application/json\"\r\n"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Register",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"nama\": \"John Doe\",\r\n  \"email\": \"johndoe@example.com\",\r\n  \"password\": \"password123\",\r\n  \"role\": \"user\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3000/api/auth/register",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"api",
+						"auth",
+						"register"
+					]
+				},
+				"description": "Generated from cURL: curl -X POST http://localhost:3000/api/auth/register \\\r\n-H \"Content-Type: application/json\" \\\r\n-d '{\r\n  \"nama\": \"John Doe\",\r\n  \"email\": \"johndoe@example.com\",\r\n  \"password\": \"password123\",\r\n  \"role\": \"user\"\r\n}'\r\n"
+			},
+			"response": []
+		},
+		{
+			"name": "Login",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"email\": \"johndoe@example.com\",\r\n  \"password\": \"password123\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3000/api/auth/login",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"api",
+						"auth",
+						"login"
+					]
+				},
+				"description": "Generated from cURL: curl -X POST http://localhost:3000/api/auth/login \\\r\n-H \"Content-Type: application/json\" \\\r\n-d '{\r\n  \"email\": \"johndoe@example.com\",\r\n  \"password\": \"password123\"\r\n}'\r\n"
+			},
+			"response": []
+		},
+		{
+			"name": "Current Middleware User",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer your_jwt_token_here"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:3000/api/auth/me",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"api",
+						"auth",
+						"me"
+					]
+				},
+				"description": "Generated from cURL: curl -X GET http://localhost:3000/api/auth/me \\\r\n-H \"Authorization: Bearer your_jwt_token_here\"\r\n"
+			},
+			"response": []
+		}
+	]
+}
