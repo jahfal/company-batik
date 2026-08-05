@@ -44,3 +44,9 @@ jobs:
           context: ./dashboard-cms # Disesuaikan dengan nama folder di gambar
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/company-batik-cms:latest
+
+      - name: Trigger Jenkins Deployment
+        if: success()
+        run: |
+          echo "Menghubungi Jenkins untuk me-refresh semua service Batik App..."
+          curl -X POST "${{ secrets.JENKINS_URL }}/job/deploy-batik-app/buildWithParameters?token=${{ secrets.JENKINS_TOKEN }}&TARGET_SERVICES=all"
