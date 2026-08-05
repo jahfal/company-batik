@@ -3,8 +3,7 @@ services:
     build:
       context: ./cms-catalog-backend
       dockerfile: Dockerfile
-    container_name: cms_backend
-    # Semua konfigurasi DB_HOST, DB_USER, dll diambil dari sini
+    container_name: batik_backend  # <-- DIUBAH (sebelumnya cms_backend)
     env_file:
       - ./cms-catalog-backend/.env
     ports:
@@ -18,7 +17,7 @@ services:
   frontend:
     image: userbatik/company-profile-batik:latest
     restart: always
-    container_name: company-profile-frontend
+    container_name: batik_frontend # <-- DIUBAH (sebelumnya company-profile-frontend)
     env_file:
       - ./company-profile-batik/.env
     ports:
@@ -31,7 +30,7 @@ services:
     build:
       context: ./dashboard-cms
       dockerfile: Dockerfile
-    container_name: cms_app
+    container_name: batik_cms      # <-- DIUBAH (sebelumnya cms_app)
     env_file:
       - ./dashboard-cms/.env
     environment:
@@ -44,8 +43,7 @@ services:
 
   database:
     image: mysql:8.0
-    container_name: mysql_db
-    # Port 3306 dibuka agar bisa diakses dari aplikasi luar/DB tool seperti TablePlus
+    container_name: batik_mysql    # <-- Boleh disamakan juga
     ports:
       - "3306:3306"
     environment:
@@ -64,15 +62,15 @@ services:
     container_name: nginx_gateway
     restart: always
     ports:
-      - "80:80"    # Membuka Port 80 (HTTP Standar) ke Publik
-      - "81:81"
+      - "80:80"
+      - "443:443"                  # <-- Jangan lupa expose port 443 jika pakai SSL!
     volumes:
-      - ./default.conf:/etc/nginx/conf.d/default.conf # Load config kamu tadi
+      - ./default.conf:/etc/nginx/conf.d/default.conf
+      - /etc/nginx/certs:/etc/nginx/certs # <-- Mount certs SSL jika disimpan di host
     depends_on:
       - backend
       - frontend
-    networks:
-      - default
+      - cms
 
 volumes:
   mysql_data:
