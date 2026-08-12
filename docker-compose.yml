@@ -17,6 +17,16 @@ services:
   frontend:
     image: userbatik/company-profile-batik:latest
     restart: always
+    read_only: true
+    tmpfs:
+      - /tmp:noexec,nosuid,nodev
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          cpus: '0.50'   # Bikin miner gak bisa nyedot CPU
+          memory: 512M
     container_name: batik_frontend # <-- DIUBAH (sebelumnya company-profile-frontend)
     env_file:
       - ./company-profile-batik/.env

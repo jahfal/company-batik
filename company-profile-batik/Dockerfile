@@ -29,6 +29,8 @@ COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
 # 3. Pindahkan eksekusi ke User 'nextjs' (Bukan Root!)
+RUN rm -rf /bin/sh /bin/ash
+
 USER nextjs
 
 EXPOSE 3001
