@@ -30,8 +30,6 @@ services:
     container_name: batik_frontend # <-- DIUBAH (sebelumnya company-profile-frontend)
     env_file:
       - ./company-profile-batik/.env
-    ports:
-      - "3001:3001"
     pull_policy: always
     depends_on:
       - backend
