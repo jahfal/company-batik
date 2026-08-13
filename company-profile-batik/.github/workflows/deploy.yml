@@ -20,7 +20,7 @@ jobs:
 
     - name: Create .env file for Build
       run: |
-        echo "NEXT_PUBLIC_API_URL=http://192.168.1.53/api" > .env
+        echo "NEXT_PUBLIC_API_URL=https://api.jahfallazuardi.my.id/api" > .env
         
         echo "PORT=3001" >> .env
         
