@@ -36,7 +36,7 @@ jobs:
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/company-batik-frontend:latest
           build-args: |
-            NEXT_PUBLIC_API_URL=https://api.jahfallazuardi.my.id/api
+            NEXT_PUBLIC_API_URL=https://api-batik.jahfallazuardi.my.id
 
       # 3. Build & Push CMS Dashboard (React)
       - name: Build and Push CMS
@@ -46,8 +46,8 @@ jobs:
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/company-batik-cms:latest
           build-args: |
-            REACT_APP_API_URL=https://api.jahfallazuardi.my.id/api
-            NEXT_PUBLIC_API_URL=https://api.jahfallazuardi.my.id/api
+            REACT_APP_API_URL=https://api-batik.jahfallazuardi.my.id
+            NEXT_PUBLIC_API_URL=https://api-batik.jahfallazuardi.my.id
 
       - name: Trigger Jenkins Deployment
         if: success()
