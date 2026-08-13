@@ -2,7 +2,7 @@ name: Build and Push Docker Image
 
 on:
   push:
-    branches: [ "main" ] # Ganti 'main' atau 'master' sesuai branch kamu
+    branches: [ "main" ]
 
 jobs:
   build:
@@ -18,17 +18,12 @@ jobs:
         username: ${{ secrets.DOCKER_USERNAME }}
         password: ${{ secrets.DOCKER_PASSWORD }}
 
-    - name: Create .env file for Build
-      run: |
-        echo "NEXT_PUBLIC_API_URL=https://api.jahfallazuardi.my.id/api" > .env
-        
-        echo "PORT=3001" >> .env
-        
-        cat .env
-
     - name: Build and push
       uses: docker/build-push-action@v4
       with:
         context: .
         push: true
-        tags: ${{ secrets.DOCKER_USERNAME }}/company-profile-batik:latest
+        tags: userbatik/company-profile-batik:latest
+        build-args: |
+          NEXT_PUBLIC_API_URL=https://api.jahfallazuardi.my.id/api
+          PORT=3001

@@ -5,8 +5,8 @@ COPY package*.json ./
 RUN npm ci
 COPY . .
 
-# Suntikkan variabel API saat build
-ARG NEXT_PUBLIC_API_URL=https://api-batik.jahfallazuardi.my.id
+# Tangkap variabel dari GitHub Actions (dengan fallback URL yang benar)
+ARG NEXT_PUBLIC_API_URL=https://api.jahfallazuardi.my.id/api
 ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
 
 RUN npm run build
