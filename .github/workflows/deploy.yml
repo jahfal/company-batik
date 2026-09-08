@@ -54,8 +54,8 @@ jobs:
       - name: Connect to Tailscale
         uses: tailscale/github-action@v3
         with:
-          oauth-client-id: ${{ secrets.kwMHyXrN4211CNTRL }}
-          oauth-secret: ${{ secrets.tskey-client-kwMHyXrN4211CNTRL-s38EUHN1JmV2uwzEKKVVkVBTAqXqR5D51 }}
+          oauth-client-id: ${{ secrets.TAILSCALE_CLIENT_ID }}
+          oauth-secret: ${{ secrets.TAILSCALE_CLIENT_SECRET }}
           tags: tag:ci
 
       - name: Trigger Jenkins Deployment
