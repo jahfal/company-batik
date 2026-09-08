@@ -53,17 +53,24 @@ jobs:
       - name: Trigger Jenkins Deployment
         if: success()
         run: |
-          echo "Fetching CSRF crumb..."
-          CRUMB_VALUE=$(curl -s -u "${{ secrets.JENKINS_USERNAME }}:${{ secrets.JENKINS_API_TOKEN }}" \
+          echo "Testing direct fetch to crumb endpoint..."
+          RESPONSE=$(curl -i -s -u "${{ secrets.JENKINS_USERNAME }}:${{ secrets.JENKINS_API_TOKEN }}" \
             --cookie-jar /tmp/cookies.txt \
-            "${{ secrets.JENKINS_URL }}/crumbIssuer/api/json" | grep -o '"crumb":"[^"]*"' | cut -d'"' -f4)
+            "${{ secrets.JENKINS_URL }}/crumbIssuer/api/json")
+
+          echo "=== Raw Response from Jenkins ==="
+          echo "$RESPONSE"
+          echo "================================="
+
+          CRUMB_VALUE=$(echo "$RESPONSE" | grep -o '"crumb":"[^"]*"' | cut -d'"' -f4)
+          echo "Extracted Crumb: $CRUMB_VALUE"
 
           if [ -z "$CRUMB_VALUE" ]; then
             echo "Error: Failed to retrieve Jenkins crumb"
             exit 1
           fi
 
-          echo "Triggering remote build for all target services..."
+          echo "Triggering remote build..."
           HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" -X POST \
             "${{ secrets.JENKINS_URL }}/job/deploy-batik-app/buildWithParameters?token=${{ secrets.JENKINS_TOKEN }}&TARGET_SERVICES=all" \
             --user "${{ secrets.JENKINS_USERNAME }}:${{ secrets.JENKINS_API_TOKEN }}" \
@@ -77,4 +84,4 @@ jobs:
             exit 1
           fi
 
-          echo "✅ Build triggered successfully! Check Jenkins dashboard."
+          echo "✅ Build triggered successfully!"
