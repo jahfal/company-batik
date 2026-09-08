@@ -50,27 +50,28 @@ jobs:
             NEXT_PUBLIC_API_URL=https://api-batik.jahfallazuardi.my.id
 
       # 4. Trigger Jenkins (dengan CSRF Crumb & Cookie)
+      # Koneksikan runner ke Tailscale via OAuth
+      - name: Connect to Tailscale
+        uses: tailscale/github-action@v3
+        with:
+          oauth-client-id: ${{ secrets.kwMHyXrN4211CNTRL }}
+          oauth-secret: ${{ secrets.tskey-client-kwMHyXrN4211CNTRL-s38EUHN1JmV2uwzEKKVVkVBTAqXqR5D51 }}
+          tags: tag:ci
+
       - name: Trigger Jenkins Deployment
         if: success()
         run: |
-          echo "Testing direct fetch to crumb endpoint..."
-          RESPONSE=$(curl -i -s -u "${{ secrets.JENKINS_USERNAME }}:${{ secrets.JENKINS_API_TOKEN }}" \
+          echo "Fetching CSRF crumb..."
+          CRUMB_VALUE=$(curl -s -u "${{ secrets.JENKINS_USERNAME }}:${{ secrets.JENKINS_API_TOKEN }}" \
             --cookie-jar /tmp/cookies.txt \
-            "${{ secrets.JENKINS_URL }}/crumbIssuer/api/json")
-
-          echo "=== Raw Response from Jenkins ==="
-          echo "$RESPONSE"
-          echo "================================="
-
-          CRUMB_VALUE=$(echo "$RESPONSE" | grep -o '"crumb":"[^"]*"' | cut -d'"' -f4)
-          echo "Extracted Crumb: $CRUMB_VALUE"
+            "${{ secrets.JENKINS_URL }}/crumbIssuer/api/json" | grep -o '"crumb":"[^"]*"' | cut -d'"' -f4)
 
           if [ -z "$CRUMB_VALUE" ]; then
             echo "Error: Failed to retrieve Jenkins crumb"
             exit 1
           fi
 
-          echo "Triggering remote build..."
+          echo "Triggering remote build for all target services..."
           HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" -X POST \
             "${{ secrets.JENKINS_URL }}/job/deploy-batik-app/buildWithParameters?token=${{ secrets.JENKINS_TOKEN }}&TARGET_SERVICES=all" \
             --user "${{ secrets.JENKINS_USERNAME }}:${{ secrets.JENKINS_API_TOKEN }}" \
@@ -84,4 +85,4 @@ jobs:
             exit 1
           fi
 
-          echo "✅ Build triggered successfully!"
+          echo "✅ Build triggered successfully! Check Jenkins dashboard."
