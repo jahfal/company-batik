@@ -50,14 +50,6 @@ jobs:
             NEXT_PUBLIC_API_URL=https://api-batik.jahfallazuardi.my.id
 
       # 4. Trigger Jenkins (dengan CSRF Crumb & Cookie)
-      # Koneksikan runner ke Tailscale via OAuth
-      - name: Connect to Tailscale
-        uses: tailscale/github-action@v3
-        with:
-          oauth-client-id: ${{ secrets.TAILSCALE_CLIENT_ID }}
-          oauth-secret: ${{ secrets.TAILSCALE_CLIENT_SECRET }}
-          tags: tag:ci
-
       - name: Trigger Jenkins Deployment
         if: success()
         run: |
