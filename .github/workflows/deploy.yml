@@ -65,7 +65,7 @@ jobs:
 
           echo "Triggering remote build for all target services..."
           HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" -X POST \
-            "${{ secrets.JENKINS_URL }}/job/deploy-batik-app/buildWithParameters?token=${{ secrets.JENKINS_TOKEN }}&TARGET_SERVICES=all" \
+            "${{ secrets.JENKINS_URL }}/job/deploy-batik-app/build" \
             --user "${{ secrets.JENKINS_USERNAME }}:${{ secrets.JENKINS_API_TOKEN }}" \
             --cookie /tmp/cookies.txt \
             -H "Jenkins-Crumb: $CRUMB_VALUE")
