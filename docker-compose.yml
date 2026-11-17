@@ -4,6 +4,7 @@ services:
       context: ./cms-catalog-backend
       dockerfile: Dockerfile
     container_name: batik_backend  # <-- DIUBAH (sebelumnya cms_backend)
+    restart: unless-stopped
     env_file:
       - ./cms-catalog-backend/.env
     ports:
@@ -35,6 +36,7 @@ services:
       - backend
 
   cms:
+    restart: unless-stopped
     build:
       context: ./dashboard-cms
       dockerfile: Dockerfile
@@ -50,6 +52,7 @@ services:
       - backend
 
   database:
+    restart: unless-stopped
     image: mysql:8.0
     container_name: batik_mysql    # <-- Boleh disamakan juga
     environment:
